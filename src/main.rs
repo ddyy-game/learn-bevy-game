@@ -1,17 +1,28 @@
 use bevy::prelude::*;
 
+#[derive(Component)]
+struct Fox;
+
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn(SceneBundle {
-        scene: asset_server.load("models/Fox.glb#Scene0"),
-        transform: Transform::from_scale(Vec3::splat(0.1)),
-        ..default()
-    });
+    commands
+        .spawn(SceneBundle {
+            scene: asset_server.load("models/Fox.glb#Scene0"),
+            transform: Transform::from_scale(Vec3::splat(0.1)),
+            ..default()
+        })
+        .insert(Fox);
     commands.spawn(Camera3dBundle {
         transform: Transform::from_xyz(20.0, 10.0, 30.0)
             .looking_at(Vec3::new(0.0, 5.0, 0.0), Vec3::Y),
         ..default()
     });
     commands.spawn(DirectionalLightBundle::default());
+}
+
+fn move_fox(mut query: Query<&mut Transform, With<Fox>>) {
+    for mut transform in &mut query {
+        transform.translation.z += 0.1;
+    }
 }
 
 fn main() {
@@ -23,5 +34,6 @@ fn main() {
             brightness: 0.2,
         })
         .add_systems(Startup, setup)
+        .add_systems(Update, move_fox)
         .run();
 }
