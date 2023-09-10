@@ -25,6 +25,18 @@ fn move_fox(mut query: Query<&mut Transform, With<Fox>>) {
     }
 }
 
+fn look_at_fox(
+    mut camera: Query<&mut Transform, With<Camera>>,
+    fox: Query<&Transform, (With<Fox>, Without<Camera>)>,
+) {
+    let Ok(mut camera_transform) = camera.get_single_mut() else { return };
+    let Ok(fox_transform) = fox.get_single() else { return };
+    camera_transform.look_at(
+        fox_transform.translation + Vec3::new(0.0, 5.0, 0.0),
+        Vec3::Y,
+    );
+}
+
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
@@ -34,6 +46,6 @@ fn main() {
             brightness: 0.2,
         })
         .add_systems(Startup, setup)
-        .add_systems(Update, move_fox)
+        .add_systems(Update, (move_fox, look_at_fox))
         .run();
 }
